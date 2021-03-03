@@ -1,6 +1,6 @@
 !    mpifort -Wall -pedantic -std=f95 -c -o pingpong4.o pingpong4.f90
 !    mpifort -o pingpong4.x pingpong4.o
-!    mpirun -np 4 ./pingpong4.x
+!    mpirun -np 4 ./pingpong4.x |sort
 PROGRAM pingpong4
 USE mpi
     IMPLICIT NONE
@@ -10,7 +10,7 @@ USE mpi
     INTEGER :: nprocs
     INTEGER, DIMENSION(MPI_STATUS_SIZE) :: status
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    INTEGER,PARAMETER :: rebotes=10
+    INTEGER,PARAMETER :: rebotes=2
     INTEGER :: pasoprima=1
     INTEGER :: enviado, recibido
     INTEGER :: pant, pact, ppos
@@ -41,69 +41,25 @@ USE mpi
             END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!         
             IF (rank==0) THEN
-                IF (pasoprima==1)THEN
-                    CALL MPI_SEND(0, 1, MPI_INT, 3, 0, MPI_COMM_WORLD, ierr)
-                    WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 3"   
-                    pasoprima=pasoprima+1
-                END IF
-                
-                ! ppos=a
-                ! pact=rank
-                ! enviado=pact
-                ! CALL MPI_SEND(enviado, 1, MPI_INT, ppos, pact, MPI_COMM_WORLD, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia", pact
-
-                ! CALL MPI_RECV(recibido, 1, MPI_INT, pant, pant, MPI_COMM_WORLD, status, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", pant
-                ! pant=recibido
+                CALL MPI_SEND(0, 1, MPI_INT, 3, 0, MPI_COMM_WORLD, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 3"   
+                CALL MPI_RECV(recibido, 1, MPI_INT, 1, 1, MPI_COMM_WORLD, status, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", recibido
             ELSE IF (rank==1) THEN
-                IF (pasoprima==1)THEN
-                    CALL MPI_SEND(1, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, ierr)
-                    WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 0"   
-                    pasoprima=pasoprima+1
-                END IF
-                
-                ! ppos=a
-                ! pact=rank
-                ! enviado=pact
-                ! CALL MPI_SEND(enviado, 1, MPI_INT, ppos, pact, MPI_COMM_WORLD, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia", pact
-
-                ! CALL MPI_RECV(recibido, 1, MPI_INT, pant, pant, MPI_COMM_WORLD, status, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", pant
-                ! pant=recibido
+                CALL MPI_SEND(1, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 0"   
+                CALL MPI_RECV(recibido, 1, MPI_INT, 2, 2, MPI_COMM_WORLD, status, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", recibido            
             ELSE IF (rank==2) THEN
-                IF (pasoprima==1)THEN
-                    CALL MPI_SEND(2, 1, MPI_INT, 1, 2, MPI_COMM_WORLD, ierr)
-                    WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 1"   
-                    pasoprima=pasoprima+1
-                END IF
-                
-                ! ppos=a
-                ! pact=rank
-                ! enviado=pact
-                ! CALL MPI_SEND(enviado, 1, MPI_INT, ppos, pact, MPI_COMM_WORLD, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia", pact
-
-                ! CALL MPI_RECV(recibido, 1, MPI_INT, pant, pant, MPI_COMM_WORLD, status, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", pant
-                ! pant=recibido
+                CALL MPI_SEND(0, 1, MPI_INT, 1, 2, MPI_COMM_WORLD, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 1"   
+                CALL MPI_RECV(recibido, 1, MPI_INT, 3, 3, MPI_COMM_WORLD, status, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", recibido            
             ELSE IF (rank==3) THEN
-                IF (pasoprima==1)THEN
-                    CALL MPI_SEND(3, 1, MPI_INT, 2, 3, MPI_COMM_WORLD, ierr)
-                    WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 2"   
-                    pasoprima=pasoprima+1
-                END IF
-                
-                ! ppos=a
-                ! pact=rank
-                ! enviado=pact
-                ! CALL MPI_SEND(enviado, 1, MPI_INT, ppos, pact, MPI_COMM_WORLD, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia", pact
-
-                ! CALL MPI_RECV(recibido, 1, MPI_INT, pant, pant, MPI_COMM_WORLD, status, ierr)
-                ! WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", pant
-                ! pant=recibido
+                 CALL MPI_SEND(0, 1, MPI_INT, 2, 3, MPI_COMM_WORLD, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia 2"   
+                CALL MPI_RECV(recibido, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, status, ierr)
+                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde ", recibido                                                    
             END IF                                             
         END DO
         Call MPI_FINALIZE(ierr)
