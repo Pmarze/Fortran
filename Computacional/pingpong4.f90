@@ -33,89 +33,92 @@
 
 PROGRAM pingpong4
 USE mpi
-    IMPLICIT NONE
+IMPLICIT NONE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    INTEGER :: ierr                                 ! Variable para la señal de error
-    INTEGER :: rank                                 ! ID del núcleo a usar
-    INTEGER :: nprocs                               ! Número de procesadores a usar
-    INTEGER, DIMENSION(MPI_STATUS_SIZE) :: status   ! Estatus de envio o recibido
+INTEGER :: ierr                                 ! Variable para la señal de error
+INTEGER :: rank                                 ! ID del núcleo a usar
+INTEGER :: nprocs                               ! Número de procesadores a usar
+INTEGER, DIMENSION(MPI_STATUS_SIZE) :: status   ! Estatus de envio o recibido
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    INTEGER,PARAMETER :: rebotes=15         ! Cantidad de rebotes a realizar
-    INTEGER :: enviado=0, recibido=1        ! Datos que se envian o reciben
-    INTEGER :: nuc0e, nuc1e, nuc2e, nuc3e   ! nucke=j núcleo k que envía hacia j
-    INTEGER :: nuc0r, nuc1r, nuc2r, nuc3r   ! nuckr=j núcleo k que recibe desde j
-    INTEGER :: i                            ! i para realizar el conteo
-    INTEGER :: a=0                          ! a para seleccionar la permutación de envío
+INTEGER,PARAMETER :: rebotes=15         ! Cantidad de rebotes a realizar
+INTEGER :: enviado=0, recibido=1        ! Datos que se envian o reciben
+INTEGER :: nuc0e, nuc1e, nuc2e, nuc3e   ! nucke=j núcleo k que envía hacia j
+INTEGER :: nuc0r, nuc1r, nuc2r, nuc3r   ! nuckr=j núcleo k que recibe desde j
+INTEGER :: i                            ! i para realizar el conteo
+INTEGER :: a=0                          ! a para seleccionar la permutación de envío
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    CALL MPI_Init(ierr)                             ! Inicializar MPI
-    IF (ierr/=0) STOP 'MPI_Init error'              ! En caso de error se detiene el proceso
-    CALL MPI_Comm_size(MPI_COMM_WORLD,nprocs,ierr)  ! Configura el tamaño de comunicación
-    IF (ierr/=0) STOP 'MPI_Comm_size error'         ! En caso de error se detiene el proceso
-    IF (nprocs==4) THEN                             ! El programa funciona solo si son 4 proc.
-        CALL MPI_COMM_RANK(MPI_COMM_WORLD,rank,ierr)! Configura el ID de cada proc.
-        IF (ierr/=0) STOP 'MPI_Comm_rank error'     ! En caso de error se detiene el proceso
+CALL MPI_Init(ierr)                             ! Inicializar MPI
+IF (ierr/=0) STOP 'MPI_Init error'              ! En caso de error se detiene el proceso
+CALL MPI_Comm_size(MPI_COMM_WORLD,nprocs,ierr)  ! Configura el tamaño de comunicación
+IF (ierr/=0) STOP 'MPI_Comm_size error'         ! En caso de error se detiene el proceso
+IF (nprocs==4) THEN                             ! El programa funciona solo si son 4 proc.
+    CALL MPI_COMM_RANK(MPI_COMM_WORLD,rank,ierr)! Configura el ID de cada proc.
+    IF (ierr/=0) STOP 'MPI_Comm_rank error'     ! En caso de error se detiene el proceso
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        Do i=1, rebotes                 ! El programa se repite la cantidad solicitada
-            IF(a==0)THEN                ! Permutación 0->3, 1->0, 2->1, 3->2
-                nuc0e=3
-                nuc1e=0
-                nuc2e=1
-                nuc3e=2
-                nuc0r=1
-                nuc1r=2
-                nuc2r=3
-                nuc3r=0
-            ELSE IF(a==1) THEN          ! Permutación 0->2, 1->3, 2->0, 3->1
-                nuc0e=2
-                nuc1e=3
-                nuc2e=0
-                nuc3e=1
-                nuc0r=2
-                nuc1r=3
-                nuc2r=0
-                nuc3r=1
-            ELSE IF(a==2) THEN          ! Permutación 0->1, 1->2, 2->3, 3->0
-                nuc0e=1
-                nuc1e=2
-                nuc2e=3
-                nuc3e=0
-                nuc0r=3
-                nuc1r=0
-                nuc2r=1
-                nuc3r=2
-            END IF
-            a=MOD(a+1,3)                ! Si a es 4 volvemos a 0
+    Do i=1, rebotes                 ! El programa se repite la cantidad solicitada
+        ! Dependiendo del valor de a, se elige una permutación de envío, para el caso de
+        ! a=0 tenemos que el nucleo 0 envía a 3, 1 envía a 0, 2 envía a 1 y 3 envía a 2,
+        ! esto es de forma didáctica para variar los canales de comunicación entre núcleos
+        IF(a==0)THEN                ! Permutación 0->3, 1->0, 2->1, 3->2
+            nuc0e=3
+            nuc1e=0
+            nuc2e=1
+            nuc3e=2
+            nuc0r=1
+            nuc1r=2
+            nuc2r=3
+            nuc3r=0
+        ELSE IF(a==1) THEN          ! Permutación 0->2, 1->3, 2->0, 3->1
+            nuc0e=2
+            nuc1e=3
+            nuc2e=0
+            nuc3e=1
+            nuc0r=2
+            nuc1r=3
+            nuc2r=0
+            nuc3r=1
+        ELSE IF(a==2) THEN          ! Permutación 0->1, 1->2, 2->3, 3->0
+            nuc0e=1
+            nuc1e=2
+            nuc2e=3
+            nuc3e=0
+            nuc0r=3
+            nuc1r=0
+            nuc2r=1
+            nuc3r=2
+        END IF
+        a=MOD(a+1,3)                ! Solo se tienen 3 variaciones, si a=4 se vuelve a 0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            IF (rank==0) THEN           ! Si estamos en el núcleo 0 
-                ! Se envia un dato al procesador dado por nuc0e
-                CALL MPI_SEND(enviado, 1, MPI_INT, nuc0e, 0, MPI_COMM_WORLD, ierr)
+        IF (rank==0) THEN           ! Si estamos en el núcleo 0 
+            ! Se envia un dato al procesador dado por nuc0e
+            CALL MPI_SEND(enviado, 1, MPI_INT, nuc0e, 0, MPI_COMM_WORLD, ierr)
                 WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc0e   
-                ! Se recibe un dato desde el procesador dado por nuc0r
-                CALL MPI_RECV(recibido, 1, MPI_INT, nuc0r, nuc0r, MPI_COMM_WORLD, status, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc0r
-            ELSE IF (rank==1) THEN      ! Si estamos en el núcleo 1
-                ! Se envia un dato al procesador dado por nuc1e
-                CALL MPI_SEND(enviado, 1, MPI_INT, nuc1e, 1, MPI_COMM_WORLD, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc1e   
-                ! Se recibe un dato desde el procesador dado por nuc1r
-                CALL MPI_RECV(recibido, 1, MPI_INT, nuc1r, nuc1r, MPI_COMM_WORLD, status, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc1r
-            ELSE IF (rank==2) THEN      ! Si estamos en el núcleo 2
-                ! Se envia un dato al procesador dado por nuc2e
-                CALL MPI_SEND(enviado, 1, MPI_INT, nuc2e, 2, MPI_COMM_WORLD, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc2e   
-                ! Se recibe un dato desde el procesador dado por nuc2r
-                CALL MPI_RECV(recibido, 1, MPI_INT, nuc2r, nuc2r, MPI_COMM_WORLD, status, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc2r
-            ELSE IF (rank==3) THEN      ! Si estamos en el núcleo 3
-                ! Se envia un dato al procesador dado por nuc3e 
-                CALL MPI_SEND(enviado, 1, MPI_INT, nuc3e, 3, MPI_COMM_WORLD, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc3e      
-                ! Se recibe un dato desde el procesador dado por nuc3r
-                CALL MPI_RECV(recibido, 1, MPI_INT, nuc3r, nuc3r, MPI_COMM_WORLD, status, ierr)
-                WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc3r
-            END IF                                             
-        END DO
-        Call MPI_FINALIZE(ierr)         ! Finaliza MPI
-    END IF
+            ! Se recibe un dato desde el procesador dado por nuc0r
+            CALL MPI_RECV(recibido, 1, MPI_INT, nuc0r, nuc0r, MPI_COMM_WORLD, status, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc0r
+        ELSE IF (rank==1) THEN      ! Si estamos en el núcleo 1
+            ! Se envia un dato al procesador dado por nuc1e
+            CALL MPI_SEND(enviado, 1, MPI_INT, nuc1e, 1, MPI_COMM_WORLD, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc1e   
+            ! Se recibe un dato desde el procesador dado por nuc1r
+            CALL MPI_RECV(recibido, 1, MPI_INT, nuc1r, nuc1r, MPI_COMM_WORLD, status, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc1r
+        ELSE IF (rank==2) THEN      ! Si estamos en el núcleo 2
+            ! Se envia un dato al procesador dado por nuc2e
+            CALL MPI_SEND(enviado, 1, MPI_INT, nuc2e, 2, MPI_COMM_WORLD, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc2e   
+            ! Se recibe un dato desde el procesador dado por nuc2r
+            CALL MPI_RECV(recibido, 1, MPI_INT, nuc2r, nuc2r, MPI_COMM_WORLD, status, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc2r
+        ELSE IF (rank==3) THEN      ! Si estamos en el núcleo 3
+            ! Se envia un dato al procesador dado por nuc3e 
+            CALL MPI_SEND(enviado, 1, MPI_INT, nuc3e, 3, MPI_COMM_WORLD, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," GOLPE desde", rank, " hacia ", nuc3e      
+            ! Se recibe un dato desde el procesador dado por nuc3r
+            CALL MPI_RECV(recibido, 1, MPI_INT, nuc3r, nuc3r, MPI_COMM_WORLD, status, ierr)
+            WRITE (*,'(A,I4,A,I2,A,I4)') "Salto ",i," RECIBO en", rank, " desde", nuc3r
+        END IF                                             
+    END DO
+    Call MPI_FINALIZE(ierr)         ! Finaliza MPI
+END IF
 END PROGRAM pingpong4
