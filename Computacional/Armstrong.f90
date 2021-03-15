@@ -31,18 +31,28 @@
 !    <http://www.gnu.org/licenses/>.
 PROGRAM Armstrong
     IMPLICIT NONE
-    INTEGER :: i, n, b, y
-    INTEGER :: e
-    DO e=0, 50
-        CALL di(a,e,c,d)
-        print *, d
+    INTEGER :: npb, bam              ! Numeros por base, base máxima
+    INTEGER :: b, x, k, d, f         ! Variables del problema
+    DO b=0, bam
+        DO x=0, npb
+            CALL kb(x,b,k)
+            CALL Fb(b,x,k,f)
+            IF (f==x)THEN
+                PRINT *, f,'es un número de armstrong en la base',b
+            END IF
+        END DO
     END DO
 END PROGRAM Armstrong
 
-SUBROUTINE Fb(b,n,y)
-    INTEGER, INTENT(IN) :: b,n
+SUBROUTINE Fb(b,n,k,y)
+    INTEGER, INTENT(IN) :: b, n, k
     INTEGER, INTENT(OUT) :: y
-
+    INTEGER :: a1, a2, a3
+    DO a1=0, k-1
+        di(n,b,a2)
+        a3=a3+a2**k
+    END DO
+    y=a3
 END SUBROUTINE
 
 SUBROUTINE di(i,n,b,y)
@@ -51,7 +61,7 @@ SUBROUTINE di(i,n,b,y)
     y=(MOD(n,b**(i+1))-MOD(n,b**i))/(b**i)
 END SUBROUTINE
 
-SUBROUTINE k(x,b,y)
+SUBROUTINE kb(x,b,y)
     REAL, INTENT(IN) :: b,x
     INTEGER, INTENT(OUT) :: y 
     REAL :: z
