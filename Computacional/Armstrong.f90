@@ -8,9 +8,9 @@
 !    Codificación del texto: UTF8
 !    Compiladores probados: GNU Fortran (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
 !    Instrucciones de compilación: no requiere nada mas
-!    mpifort -Wall -pedantic -std=f95 -c -o Armstrong.o Armstrong.f90
-!    mpifort -o Armstrong.x Armstrong.o
-!    mpirun -np 2 ./Armstrong.x
+!    gfortran -Wall -pedantic -std=f95 -c -o Armstrong.o Armstrong.f90
+!    gfortran -o Armstrong.x Armstrong.o
+!    ./Armstrong.x
 
 !    Copyright (C) 2021
 !    P. D. Martínez Zeceña
@@ -31,43 +31,40 @@
 !    <http://www.gnu.org/licenses/>.
 PROGRAM Armstrong
     IMPLICIT NONE
-    INTEGER :: npb=25, bam=11              ! Numeros por base, base máxima
-    INTEGER :: b, x, k, f         ! Variables del problema
+    INTEGER :: npb=10000, bam=10              ! Numeros por base, base máxima
+    INTEGER :: b, x, k, d, f1,f2 , i              ! Variables del problema
     REAL :: xreal,breal
-    DO b=10, bam
-        DO x=1, npb
+    DO b=2, bam
+        print*, 'base=',b
+        DO x=0, npb
             xreal=REAL(x)
             breal=REAL(b)
             CALL kb(xreal,breal,k)
-            CALL Fb(b,x,k,f)
-            IF (f==x)THEN
-                PRINT *, f,'es un número de armstrong en la base',b
+!            IF (k>1)THEN
+                DO i=0, k-1
+                    CALL di(i,x,b,d)
+                    f1=f2
+                    f2=d**k+f1
+                END DO
+            !END IF
+            IF (f2==x)THEN
+                print*,f2,'es un número de Armstrong',x
             END IF
+            f2=0
         END DO
     END DO
 END PROGRAM Armstrong
-
-SUBROUTINE Fb(b,n,k,y)
-    INTEGER, INTENT(IN) :: b, n, k
-    INTEGER, INTENT(OUT) :: y
-    INTEGER :: a1, a2, a3
-    DO a1=0, k-1
-        CALL di(a1,n,b,a2)
-        a3=a3+a2**k
-    END DO
-    y=a3
-END SUBROUTINE
 
 SUBROUTINE di(i,n,b,y)
     INTEGER, INTENT(IN) :: i, n, b
     INTEGER, INTENT(OUT) :: y
     y=(MOD(n,b**(i+1))-MOD(n,b**i))/(b**i)
-END SUBROUTINE
+END SUBROUTINE di
 
 SUBROUTINE kb(x,b,y)
     REAL, INTENT(IN) :: b,x
-    INTEGER, INTENT(OUT) :: y 
+    INTEGER, INTENT(OUT) :: y
     REAL :: z
     z=LOG(x)/LOG(b)
     y=INT(z)+1
-END SUBROUTINE
+END SUBROUTINE kb
