@@ -31,11 +31,14 @@
 !    <http://www.gnu.org/licenses/>.
 PROGRAM Armstrong
     IMPLICIT NONE
-    INTEGER :: npb=10000, bam=10              ! Numeros por base, base máxima
+    INTEGER :: npb=100000000, bmin=2, bam=10              ! Numeros por base, base máxima
     INTEGER :: b, x, k, d, f1,f2 , i              ! Variables del problema
     REAL :: xreal,breal
-    DO b=2, bam
+    OPEN(12,file='Armstrong.txt')
+    print*, 'números por base=',npb
+    DO b=bmin, bam
         print*, 'base=',b
+        WRITE(12,*) 'Base=',b
         DO x=0, npb
             xreal=REAL(x)
             breal=REAL(b)
@@ -48,7 +51,8 @@ PROGRAM Armstrong
                 END DO
             !END IF
             IF (f2==x)THEN
-                print*,f2,'es un número de Armstrong',x
+                print*,f2,'es un número de Armstrong'
+                WRITE(12,*) f2
             END IF
             f2=0
         END DO
