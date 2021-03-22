@@ -2,7 +2,9 @@
 !    pingpong4.f90
 !    Pablo Martínez (pabloversion1.0@gmail.com)
 
-!    Programa que 
+!    Programa que encuentra los números de armstrong para distintas bases de b
+!    y extrae los resultados en base decimal en un archivo de texto llamado
+!    'Armstrong.txt'
 
 
 !    Codificación del texto: UTF8
