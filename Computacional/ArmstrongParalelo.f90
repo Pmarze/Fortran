@@ -43,10 +43,10 @@ IMPLICIT NONE
     INTEGER :: rank                                 ! ID del núcleo a usar
     INTEGER :: nprocs                               ! Número de procesadores a usar
     INTEGER, DIMENSION(MPI_STATUS_SIZE) :: status   ! Estatus de envio o recibido
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     INTEGER :: npb=1000000000                       ! Cantidad de números por base
-    !INTEGER :: bmin=1, bama=17                      ! Base mínima, Base máxima
-    INTEGER :: bmin=1, bama=7                      ! Base mínima, Base máxima
+    !INTEGER :: bmin=1, bama=17                     ! Base mínima, Base máxima
+    INTEGER :: bmin=1, bama=7                       ! Base mínima, Base máxima
     !INTEGER :: bmin=1, bama=3                      ! Base mínima, Base máxima
     INTEGER :: b, x, k, d, f , i, bcal, rond, paso  ! Variables del problema
     REAL :: xreal,breal                             ! Necesario para la función que calcula "k"
@@ -63,31 +63,30 @@ IMPLICIT NONE
     IF (bcal<=0) STOP 'Orden incorrecto de cálculo' ! Solo interesa calculo de basses ascendentes
     IF (nprocs>=9) STOP 'Más procesadores de los programados'   ! Programa para 8 o menos núcleos
     
-    IF (nprocs==(bcal-1)) THEN
-        DO a=1, nprocs
-            wvec(a)=1
-        END DO
-    ELSE IF (nprocs>bcal) THEN
-        DO a=1, bcal+1
-            wvec(a)=1
-        END DO
-    ELSE IF(nprocs<=bcal)THEN
-        rond=FLOOR(REAL(bcal)/REAL(nprocs))
-        DO a=1, nprocs
-            wvec(a)=1*rond
-        END DO
-        paso=MOD(bcal,nprocs)+1
-        DO a=1, paso
-            wvec(a)=wvec(a)+1
-        END DO
+    CALL vt(bcal,nprocs,wvec)
+!   print*, wvec(1),wvec(2),wvec(3),wvec(4),wvec(5),wvec(6),wvec(7),wvec(8)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    IF (rank==0) THEN           ! Si estamos en el núcleo 0 
+
+    ELSE IF (rank==2) THEN      ! Si estamos en el núcleo 1   
+    
+    ELSE IF (rank==3) THEN      ! Si estamos en el núcleo 1   
+    
+    ELSE IF (rank==4) THEN      ! Si estamos en el núcleo 1   
+    
+    ELSE IF (rank==5) THEN      ! Si estamos en el núcleo 1   
+    
+    ELSE IF (rank==6) THEN      ! Si estamos en el núcleo 1   
+    
+    ELSE IF (rank==7) THEN      ! Si estamos en el núcleo 1   
+    
     END IF
-    print*, wvec(1),wvec(2),wvec(3),wvec(4),wvec(5),wvec(6),wvec(7),wvec(8)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+
     Call MPI_FINALIZE(ierr)         ! Finaliza MPI    
 END PROGRAM ArmstrongParalelo
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 SUBROUTINE di(i,n,b,y)                      ! Subrutina para encontrar el coeficiente d_i
     INTEGER, INTENT(IN) :: i, n, b
@@ -95,7 +94,7 @@ SUBROUTINE di(i,n,b,y)                      ! Subrutina para encontrar el coefic
     y=(MOD(n,b**(i+1))-MOD(n,b**i))/(b**i)  ! Fórmula dada para calcular
 END SUBROUTINE di
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 SUBROUTINE kb(x,b,y)                        ! Subrutina para encontrar el coeficiente k
     REAL, INTENT(IN) :: b,x
@@ -105,4 +104,30 @@ SUBROUTINE kb(x,b,y)                        ! Subrutina para encontrar el coefic
     y=INT(z)+1                              ! El resultado es un entero y se devuelve como tal
 END SUBROUTINE kb
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+SUBROUTINE vt(b,c,y)
+    INTEGER, INTENT(IN) ::  b, c
+    INTEGER, DIMENSION(8), INTENT(OUT) :: y
+    INTEGER :: a, rond, paso
+    IF (c==(b-1)) THEN
+        DO a=1, c
+            y(a)=1
+        END DO
+    ELSE IF (c>b) THEN
+        DO a=1, b+1
+            y(a)=1
+        END DO
+    ELSE IF(c<=b)THEN
+        rond=FLOOR(REAL(b)/REAL(c))
+        DO a=1, c
+            y(a)=1*rond
+        END DO
+        paso=MOD(b,c)+1
+        DO a=1, paso
+            y(a)=y(a)+1
+        END DO
+    END IF
+END SUBROUTINE vt
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
