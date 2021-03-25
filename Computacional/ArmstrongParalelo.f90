@@ -44,11 +44,11 @@ IMPLICIT NONE
     INTEGER :: nprocs                               ! Número de procesadores a usar
     INTEGER, DIMENSION(MPI_STATUS_SIZE) :: status   ! Estatus de envio o recibido
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    INTEGER :: npb=1000000000                       ! Cantidad de números por base
-    !INTEGER :: bmin=1, bama=17                     ! Base mínima, Base máxima
-    INTEGER :: bmin=1, bama=7                       ! Base mínima, Base máxima
+    INTEGER :: npb=10                               ! Cantidad de números por base
+    INTEGER :: bmin=1, bama=17                     ! Base mínima, Base máxima
+    !INTEGER :: bmin=1, bama=7                       ! Base mínima, Base máxima
     !INTEGER :: bmin=1, bama=3                      ! Base mínima, Base máxima
-    INTEGER :: b, x, k, d, f , i, bcal, rond, paso  ! Variables del problema
+    INTEGER :: b, x, k, d, f , i, bcal              ! Variables del problema
     REAL :: xreal,breal                             ! Necesario para la función que calcula "k"
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     INTEGER, DIMENSION(8) :: wvec=(/0,0,0,0,0,0,0,0/)
@@ -64,22 +64,86 @@ IMPLICIT NONE
     IF (nprocs>=9) STOP 'Más procesadores de los programados'   ! Programa para 8 o menos núcleos
     
     CALL vt(bcal,nprocs,wvec)
-!   print*, wvec(1),wvec(2),wvec(3),wvec(4),wvec(5),wvec(6),wvec(7),wvec(8)
+    print*, wvec(1),wvec(2),wvec(3),wvec(4),wvec(5),wvec(6),wvec(7),wvec(8)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     IF (rank==0) THEN           ! Si estamos en el núcleo 0 
-
-    ELSE IF (rank==2) THEN      ! Si estamos en el núcleo 1   
-    
-    ELSE IF (rank==3) THEN      ! Si estamos en el núcleo 1   
-    
-    ELSE IF (rank==4) THEN      ! Si estamos en el núcleo 1   
-    
-    ELSE IF (rank==5) THEN      ! Si estamos en el núcleo 1   
-    
-    ELSE IF (rank==6) THEN      ! Si estamos en el núcleo 1   
-    
-    ELSE IF (rank==7) THEN      ! Si estamos en el núcleo 1   
-    
+        OPEN(rank,file='Armstrong_N0.txt')           ! Abre y/o crea el archivo de texto para guardar los datos
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+                DO b=bmin, bmin+wvec(rank+1)-1          ! Desde la base mínima hasta la base máxima                  
+                    WRITE(rank,*) 'Base=',b              
+                    DO x=0, npb                         ! Se consideran solo números no negativos
+                        xreal=REAL(x)
+                        breal=REAL(b)
+                        CALL kb(xreal,breal,k)          ! Se calcula el valor de "k" y se almacena en la variable k
+                        DO i=0, k-1                     ! Se realiza una sumatoria desde i=0 hasta k-1
+                            CALL di(i,x,b,d)            ! Se calcula el factor d_i y se almacena en la variable d                  
+                            f=d**k+f                    ! Se realiza la sumatoria de d_i^k
+                        END DO
+                        IF (f==x)THEN                   ! Si f=x, este es un número de Armstrong
+                            WRITE(rank,*) f
+                        END IF
+                        f=0                             ! Se eliminan los resultados anteriores
+                    END DO
+                END DO
+        END IF
+    ELSE IF (rank==1) THEN      ! Si estamos en el núcleo 1 
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                print*, a
+            END DO
+        END IF
+    ELSE IF (rank==2) THEN      ! Si estamos en el núcleo 2
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
+    ELSE IF (rank==3) THEN      ! Si estamos en el núcleo 3   
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
+    ELSE IF (rank==4) THEN      ! Si estamos en el núcleo 4   
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
+    ELSE IF (rank==5) THEN      ! Si estamos en el núcleo 5   
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
+    ELSE IF (rank==6) THEN      ! Si estamos en el núcleo 6   
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
+    ELSE IF (rank==7) THEN      ! Si estamos en el núcleo 7   
+        IF (wvec(rank+1)==0)THEN
+            print*, 'Núcleo ',rank,' sin uso'
+        ELSE
+            DO a=1, wvec(rank+1)
+                
+            END DO
+        END IF    
     END IF
 
     Call MPI_FINALIZE(ierr)         ! Finaliza MPI    
