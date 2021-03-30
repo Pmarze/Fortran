@@ -35,9 +35,10 @@
 PROGRAM Fibonacci
     IMPLICIT NONE
     INTEGER, DIMENSION(2,2) :: a                ! Matriz inicial a y b de resultados
-    INTEGER, DIMENSION(2,2) :: b
-    INTEGER :: i, ffun                          ! Variables del problema
-    INTEGER :: caso=2 , fibmin=3, fibmax=7
+    INTEGER(8), DIMENSION(2,2) :: b
+    INTEGER :: i
+    INTEGER(8) :: ffun, j                       ! Variables del problema
+    INTEGER :: caso=1 , fibmin=0, fibmax=92
     a(1,1)=1                                    ! Valores de la matriz generadora
     a(1,2)=1
     a(2,1)=1
@@ -49,7 +50,8 @@ PROGRAM Fibonacci
         END DO
     ELSE IF (caso==2)THEN
         DO i=fibmin-1,fibmax-1                  ! Método de función recursiva
-            print*,i+1,ffun(i+1)
+            j=INT(i+1,8)
+            print*,i+1,ffun(j)
         END DO
     END IF
 END PROGRAM Fibonacci
@@ -57,8 +59,8 @@ END PROGRAM Fibonacci
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 RECURSIVE FUNCTION ffun(n) RESULT (f)           ! Método de función recursiva ffun(n)
-    INTEGER, INTENT(IN) :: n
-    INTEGER :: f
+    INTEGER(8), INTENT(IN) :: n
+    INTEGER(8) :: f
     IF (n<=2)THEN                               ! Si n es menor a dos, el reultado es 1
         f=1
     ELSE                                        ! Para cualquier otro caso es necesario 
@@ -69,9 +71,9 @@ END FUNCTION ffun
 SUBROUTINE fmat(a,b,y)                          ! Método de matriz generadora
     INTEGER, DIMENSION(2,2), INTENT(IN) :: a
     INTEGER, INTENT(IN) :: b
-    INTEGER, DIMENSION(2,2), INTENT(OUT) :: y
+    INTEGER(8), DIMENSION(2,2), INTENT(OUT) :: y
     INTEGER :: i, j, n                          ! coordenadas i,j de la matriz y potencia n
-    INTEGER, DIMENSION(2,2) :: c                ! matriz de paso
+    INTEGER(8), DIMENSION(2,2) :: c                ! matriz de paso
     y(1,1)=1                                    ! condición inicial para f_0,f_1
     DO i=1, 2                                   ! Se copia la matriz a en c
         DO j=1, 2
