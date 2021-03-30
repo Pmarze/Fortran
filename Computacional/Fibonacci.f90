@@ -36,20 +36,20 @@ PROGRAM Fibonacci
     IMPLICIT NONE
     INTEGER, DIMENSION(2,2) :: a                ! Matriz inicial a y b de resultados
     INTEGER, DIMENSION(2,2) :: b
-    INTEGER :: i, ffun                                ! Variables del problema
-    INTEGER :: caso=1 , fibbonachos=45
+    INTEGER :: i, ffun                          ! Variables del problema
+    INTEGER :: caso=2 , fibmin=3, fibmax=7
     a(1,1)=1                                    ! Valores de la matriz generadora
     a(1,2)=1
     a(2,1)=1
     a(2,2)=0
     IF (caso==1)THEN                            ! para analizar 
-        DO i=0,fibbonachos-1                    ! Método de matriz generadora a^n-1
+        DO i=fibmin-1,fibmax-1                  ! Método de matriz generadora a^n-1
             CALL fmat(a,i,b)
             PRINT*, i, b(1,1)
         END DO
     ELSE IF (caso==2)THEN
-        DO i=0,fibbonachos-1                    ! Método de función recursiva
-            print*,i,ffun(i+1)
+        DO i=fibmin-1,fibmax-1                  ! Método de función recursiva
+            print*,i+1,ffun(i+1)
         END DO
     END IF
 END PROGRAM Fibonacci
