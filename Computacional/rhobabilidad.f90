@@ -44,7 +44,6 @@ PROGRAM rhobabilidad
                                                 ! números aleatorios entre 0 y 1
     IF (caso==1)THEN                            ! Si caso=1 --> distribución normal
         OPEN(12,file='rho_Normal.txt')          ! Se genera un documento de texto
-        WRITE(12,*) 'Distribución normal'
         WRITE(12,*) 'Dist. Uniforme   , Dist. Normal'
         DO i=1, n                               ! Cada coordenada se transforma según
             CALL normal(r(i),y(i))              ! la funcion normal y se almacena en y(i)
@@ -56,8 +55,7 @@ PROGRAM rhobabilidad
         END IF
     ELSE IF (caso==2)THEN                       ! Si caso=2 --> distrubución exponencial
         OPEN(12,file='rho_Exponencial.txt')
-        WRITE(12,*) 'Distribución exponencial, delta=',delta
-        WRITE(12,*) 'Dist. Uniforme   , Dist. Exponencial'
+        WRITE(12,*) 'Dist. Uniforme   , Dist. Exponencial','delta=',delta
         DO i=1, n                               ! Cada coordenada se transforma según
             CALL expone(r(i),delta,z(i))        ! la función expone y se almacena en z(i)
             WRITE(12,*) r(i),',',z(i)
@@ -72,7 +70,7 @@ END PROGRAM rhobabilidad
 SUBROUTINE normal(a,y)                          ! Función que transforma una dist. uniforme
     REAL, INTENT(IN) :: a                       ! en una dist. normal
     REAL, INTENT(OUT) :: y
-    y=SQRT(LOG(1/a**2))                         ! Ecuación dada por el método inverso
+    y=SQRT(-LOG(a**2))                          ! Ecuación dada por el método inverso
 END SUBROUTINE normal
 
 SUBROUTINE expone(a,n,y)                        ! Funcione que transforma una dist. uniforme
