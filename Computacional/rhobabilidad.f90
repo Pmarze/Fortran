@@ -35,46 +35,40 @@
 PROGRAM rhobabilidad
     IMPLICIT NONE
     INTEGER, PARAMETER :: n=1000                ! Cantidad de datos aleatorios
-    REAL, DIMENSION(n) :: r,y,z                 ! arreglo para cada distribucion
+    INTEGER(2) :: caso=2                        ! caso 1 = normal , caso 2= exponencial
     REAL :: delta=1                             ! delta, distribución exponencial
-    INTEGER(2) :: i                             ! variable de conteo
-    INTEGER(2) :: caso=1, impr=1                ! caso 1 = normal , caso 2= exponencial
+    REAL, DIMENSION(n) :: r,y,z                 ! arreglo para cada distribucion
+    INTEGER :: rank=1                           ! Canal de comunicación del archivo .txt
     ! si impr=1 los datos obtenidos se muestran en la terminal
-    CALL random_number(r)                       ! se rellena el arreglo de tamaño n con
-                                                ! números aleatorios entre 0 y 1
+    CALL random_number(r)       ! se rellena el arreglo con números aleatorios entre 0 y 1
     IF (caso==1)THEN                            ! Si caso=1 --> distribución normal
-        OPEN(12,file='rho_Normal.txt')          ! Se genera un documento de texto
-        WRITE(12,*) 'Dist. Uniforme   , Dist. Normal'
-        DO i=1, n                               ! Cada coordenada se transforma según
-            CALL normal(r(i),y(i))              ! la funcion normal y se almacena en y(i)
-            WRITE(12,*) r(i),',',y(i)
-        END DO
-        IF (impr==1)THEN                        ! Se imprime en pantalla si se solicitó
-            print*, 'Distribución normal'
-            print*, y
-        END IF
+        OPEN(rank, file='rho_Normal.txt')       ! Se genera un documento de texto
+        WRITE(rank,*) 'Dist. Uniforme   , Dist. Normal'
+        CALL normal(r,n,rank,y)                 ! Función dist. normal
     ELSE IF (caso==2)THEN                       ! Si caso=2 --> distrubución exponencial
-        OPEN(12,file='rho_Exponencial.txt')
-        WRITE(12,*) 'Dist. Uniforme   , Dist. Exponencial','delta=',delta
-        DO i=1, n                               ! Cada coordenada se transforma según
-            CALL expone(r(i),delta,z(i))        ! la función expone y se almacena en z(i)
-            WRITE(12,*) r(i),',',z(i)
-        END DO
-        IF (impr==1)THEN                        ! Se imprime en pantalla si se solicitó
-            print*, 'Distribución exponencial'
-            print*, z
-        END IF            
+        OPEN(rank, file='rho_Exponencial.txt')  ! Se genera un documento de texto
+        WRITE(rank,*) 'Dist. Uniforme   , Dist. Exponencial','delta=',delta
+        CALL expone(r,delta,n,rank,z)           ! Función dist. normal
     END IF
 END PROGRAM rhobabilidad
 
-SUBROUTINE normal(a,y)                          ! Función que transforma una dist. uniforme
-    REAL, INTENT(IN) :: a                       ! en una dist. normal
-    REAL, INTENT(OUT) :: y
-    y=SQRT(-LOG(a**2))                          ! Ecuación dada por el método inverso
+SUBROUTINE normal(a,n,rank,y)                   ! Función que transforma una dist. uniforme
+    INTEGER :: n, i, rank                       ! Variables de la función
+    REAL, DIMENSION(n), INTENT(IN) :: a         ! en una dist. normal
+    REAL, DIMENSION(n), INTENT(OUT) :: y
+    DO i=1, n
+        y(i)=SQRT(-LOG(a(i)**2))                ! Ecuación dada por el método inverso
+        WRITE(rank,*) a(i),',',y(i)             ! Se almacena el resultado
+    END DO
 END SUBROUTINE normal
 
-SUBROUTINE expone(a,n,y)                        ! Funcione que transforma una dist. uniforme
-    REAL, INTENT(IN) :: a, n                    ! en una dist. exponencial
-    REAL, INTENT(OUT) :: y
-    y=(-1/n)*LOG(a)                             ! Ecuación dada por el método inverso
+SUBROUTINE expone(a,b,n,rank,y)                 ! Funcione que transforma una dist. uniforme
+    REAL :: b
+    INTEGER :: n, i, rank
+    REAL, DIMENSION(n), INTENT(IN) :: a         ! en una dist. exponencial
+    REAL, DIMENSION(n), INTENT(OUT) :: y
+    DO i=1, n
+        y(i)=(-1/b)*LOG(a(i))                   ! Ecuación dada por el método inverso
+        WRITE(rank,*) a(i),',',y(i)             ! Se almacena el resultado
+    END DO
 END SUBROUTINE expone
