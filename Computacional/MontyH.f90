@@ -54,11 +54,11 @@ IMPLICIT NONE
         CALL selca(posic,cabras)                        ! Se asigna una puerta al carro y cabras
         !print*, 'carro',cabras
         CALL mosca(puerta,cabras,mostrar)               ! Se elige que puerta mostrar al usuario
-        CALL flip(puerta,mostrar,decision,puertaf)   ! Se cambia o no de puerta del usuario
+        CALL flip(puerta,mostrar,decision,puertaf)      ! Se cambia o no de puerta del usuario
         !print*, 'posic', puertaf
         CALL anali(puertaf,cabras,resultado)            ! Se analizan los resultados para saber si ganó
         !print*, 'resultado',resultado
-        IF(decision==0)THEN                               ! Si decidió no cambiar
+        IF(decision==0)THEN                             ! Si decidió no cambiar
             IF (resultado==1)THEN                       ! La decision correcta era no cambiar
                 !print*, 'no cambió y ganó'
                 decnocamb=decnocamb+1
