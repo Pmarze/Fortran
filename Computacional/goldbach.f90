@@ -38,53 +38,63 @@
 
 PROGRAM goldbach
 IMPLICIT NONE
-    ! Por el teorema de los números primos tenemos que la cantidad de primos entre 0 y n no excede n/ln(n)
-    ! por lo que definimos un arreglo de tamaño n/ln(n) donde se almacenaran todos los primos de ese intervalo.
+    ! Por el teorema de los números primos tenemos que la cantidad de primos entre 0 y n no excede n/(ln(n)-2)
+    ! por lo que definimos un arreglo de tamaño n/(ln(n)-2) donde se almacenaran todos los primos de ese intervalo.
     INTEGER, DIMENSION(:), allocatable :: lista
-    INTEGER :: fint, n=100          ! Cantidad de primos a encontrar
-    INTEGER :: ranginf=1            ! Límite inferior del rango en el cual se corrobora la conjetura
-    INTEGER :: rangsup=100           ! Límite superior del rango en el cual se corrobora la conjetura    
+    INTEGER :: fint, n=4000             ! Cantidad de primos a encontrar
+    INTEGER :: ranginf=1                ! Límite inferior del rango en el cual se corrobora la conjetura
+    INTEGER :: rangsup=4000             ! Límite superior del rango en el cual se corrobora la conjetura    
     REAL :: freal, nreal
-    INTEGER :: i, j, k, l=0
-    INTEGER :: cant, dossum
+    INTEGER :: i, j, k, l               ! Índices para las sumatorias
+    INTEGER :: indlist=0, cant, dossum, tresum  ! Índice de la lista de primos, cantidad de primos, suma de dos y tres primos respectivamente
+    INTEGER :: fordos, fortre           ! formas de sumar dos primos, formas de sumar 3 primos
     nreal=REAL(n)
     freal=CEILING(n/(LOG(nreal)-2))     ! Se calcula la cota superior de los primos en ese intervalo
     fint=INT(freal)                     ! Se crea un vector que si mucho tendrá todas sus componentes con un primo correspondiente
     allocate(lista(fint))               ! Se define el tamaño máximo de la lista
+    OPEN(12,file='Vn2.txt')             ! Abre y/o crea el archivo de texto para guardar los datos de Vn,2
+    OPEN(13,file='Vn3.txt')             ! Abre y/o crea el archivo de texto para guardar los datos de Vn,3
     DO i=2, n                           ! Se calculan todos los números primos entre 0 y n
-        k=0
+        k=0                             ! Se presupone que el número es primo, en caso de fallar se cambia su valor
         DO j=2, i-1
             IF(MOD(i,j)==0)THEN
-                k=1                     ! Variable para saber si es primo o no k=0 -> primo
-                EXIT                    ! si hay al menos un divisor ya sabemos que es primo y no es necesario seguir calculando
+                k=1                     ! Variable para saber si es primo o no, k=0 -> primo
+                EXIT                    ! si hay al menos un divisor ya sabemos que no es primo y no es necesario seguir calculando
             END IF
         END DO
         IF(k==0)THEN                    ! Si ningún número lo divide, es un número primo
-            l=l+1
-            lista(l)=i
+            indlist=indlist+1           ! Se añade a la siguiente posición no utilizada de la lista
+            lista(indlist)=i
         END IF
     END DO
 
     DO i=1, fint                        ! Se calcula la cantidad de primos en el intervalo
-        IF(lista(i)==0)THEN
+        IF(lista(i)==0)THEN             ! Las posiciones no utilizadas de la lista tienen un 0
             EXIT
         END IF
-        cant=cant+1
+        cant=cant+1                     ! Se suma en uno por cada primo encontrado en la lista
     END DO
-
-    DO i=ranginf, rangsup
-        DO j=1, cant
-            DO k=j, cant
+    print*, cant                        ! Se imprime la cantidad de primos encontrados
+    DO i=ranginf, rangsup               ! Se calcula en un rango el comportamiento de la conjetura
+        fordos=0                        ! Se presupone que el número no puede escribirse como suma de otros dos primos
+        fortre=0                        ! Se presupone que el número no puede escribirse como suma de otros tres primos
+        DO j=1, cant                    ! Por medio de dos ciclos DO se calculan las combinaciones sin repetición de
+            DO k=j, cant                ! las sumas de dos dígitos que pueden formar a cada número "i"
                 dossum=lista(j)+lista(k)
-                IF (dossum==i)THEN
-                    print*, i,'=',lista(j),'+',lista(k)
+                IF (dossum==i)THEN      ! Si el resultado de la suma es igual a i se suma uno a la cantidad de formas de sumar dos
+                    !print*, i,'=',lista(j),'+',lista(k)
+                    fordos=fordos+1
                 END IF
+                DO l=k, cant            ! Por medio de un tercer ciclo DO, se calculan las combinaciones sin repetición de 3 dígitos
+                    tresum=lista(j)+lista(k)+lista(l)
+                    IF (tresum==i)THEN      ! Si el resultado de la suma es igual a i se suma uno a la cantidad de formas de sumar tres
+                        !print*, i,'=',lista(j),'+',lista(k),'+',lista(l)   
+                        fortre=fortre+1
+                    END IF
                 END DO
+            END DO
         END DO
+        WRITE(12,*) i, fordos           ! Se imprime en el archivo correspondiente el número y la cantidad de formas como puede escribirse
+        WRITE(13,*) i, fortre           
     END DO
-
-!    print*, lista                  ! En caso de querer ver la lista de todos los primos, quitar el comentario
-!    print*, cant                   ! En caso de querer ver la cantidad de primos, quitar el comentario
-
-
 END PROGRAM goldbach
