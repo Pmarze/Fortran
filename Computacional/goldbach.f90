@@ -16,7 +16,7 @@
 !    Instrucciones de compilación: no requiere nada mas
 !    gfortran -Wall -pedantic -std=f95 -c -o goldbach.o goldbach.f90
 !    gfortran -o goldbach.x goldbach.o
-!    ./goldbach.x
+!    /usr/bin/time -f "%e %M %P" ./goldbach.x
 
 !    Copyright (C) 2021
 !    P. D. Martínez Zeceña
@@ -41,12 +41,13 @@ IMPLICIT NONE
     ! Por el teorema de los números primos tenemos que la cantidad de primos entre 0 y n no excede n/(ln(n)-2)
     ! por lo que definimos un arreglo de tamaño n/(ln(n)-2) donde se almacenaran todos los primos de ese intervalo.
     INTEGER, DIMENSION(:), allocatable :: lista
-    INTEGER :: fint, n=4000             ! Cantidad de primos a encontrar
+    INTEGER :: fint, n=100             ! Cantidad de primos a encontrar
     INTEGER :: ranginf=1                ! Límite inferior del rango en el cual se corrobora la conjetura
-    INTEGER :: rangsup=4000             ! Límite superior del rango en el cual se corrobora la conjetura    
+    INTEGER :: rangsup=100             ! Límite superior del rango en el cual se corrobora la conjetura    
     REAL :: freal, nreal
-    INTEGER :: i, j, k, l               ! Índices para las sumatorias
-    INTEGER :: indlist=0, cant, dossum, tresum  ! Índice de la lista de primos, cantidad de primos, suma de dos y tres primos respectivamente
+    INTEGER :: i, j, k, l, m            ! Índices para las sumatorias
+    INTEGER :: indlist=0, dossum, tresum  ! Índice de la lista de primos, suma de dos y tres primos respectivamente
+    INTEGER :: cant, cant2              ! cantidad de primos, cantidad de primos que pueden sumar
     INTEGER :: fordos, fortre           ! formas de sumar dos primos, formas de sumar 3 primos
     nreal=REAL(n)
     freal=CEILING(n/(LOG(nreal)-2))     ! Se calcula la cota superior de los primos en ese intervalo
@@ -78,14 +79,21 @@ IMPLICIT NONE
     DO i=ranginf, rangsup               ! Se calcula en un rango el comportamiento de la conjetura
         fordos=0                        ! Se presupone que el número no puede escribirse como suma de otros dos primos
         fortre=0                        ! Se presupone que el número no puede escribirse como suma de otros tres primos
-        DO j=1, cant                    ! Por medio de dos ciclos DO se calculan las combinaciones sin repetición de
-            DO k=j, cant                ! las sumas de dos dígitos que pueden formar a cada número "i"
+        cant2=0
+        DO m=1, cant                    ! Se revisa cada posición de los números primos
+            IF(lista(m)>i)THEN          ! Si un primo es mayor que i no lo va a sumar y nos gasta tiempo
+                EXIT
+            END IF
+            cant2=cant2+1               ! Se suma en uno por cada primo válido encontrado en la lista
+        END DO
+        DO j=1, cant2                    ! Por medio de dos ciclos DO se calculan las combinaciones sin repetición de
+            DO k=j, cant2                ! las sumas de dos dígitos que pueden formar a cada número "i"
                 dossum=lista(j)+lista(k)
                 IF (dossum==i)THEN      ! Si el resultado de la suma es igual a i se suma uno a la cantidad de formas de sumar dos
                     !print*, i,'=',lista(j),'+',lista(k)
                     fordos=fordos+1
                 END IF
-                DO l=k, cant            ! Por medio de un tercer ciclo DO, se calculan las combinaciones sin repetición de 3 dígitos
+                DO l=k, cant2            ! Por medio de un tercer ciclo DO, se calculan las combinaciones sin repetición de 3 dígitos
                     tresum=lista(j)+lista(k)+lista(l)
                     IF (tresum==i)THEN      ! Si el resultado de la suma es igual a i se suma uno a la cantidad de formas de sumar tres
                         !print*, i,'=',lista(j),'+',lista(k),'+',lista(l)   
