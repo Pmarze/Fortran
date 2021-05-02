@@ -41,24 +41,50 @@ IMPLICIT NONE
     ! Por el teorema de los números primos tenemos que la cantidad de primos entre 0 y n no excede n/ln(n)
     ! por lo que definimos un arreglo de tamaño n/ln(n) donde se almacenaran todos los primos de ese intervalo.
     INTEGER, DIMENSION(:), allocatable :: lista
-    INTEGER :: fint, n=1000000          ! Cantidad de primos a encontrar
+    INTEGER :: fint, n=100          ! Cantidad de primos a encontrar
+    INTEGER :: ranginf=1            ! Límite inferior del rango en el cual se corrobora la conjetura
+    INTEGER :: rangsup=100           ! Límite superior del rango en el cual se corrobora la conjetura    
     REAL :: freal, nreal
     INTEGER :: i, j, k, l=0
+    INTEGER :: cant, dossum
     nreal=REAL(n)
-    freal=CEILING(n/(LOG(nreal)-2))   ! Se calcula la cota superior de los primos en ese intervalo
+    freal=CEILING(n/(LOG(nreal)-2))     ! Se calcula la cota superior de los primos en ese intervalo
     fint=INT(freal)                     ! Se crea un vector que si mucho tendrá todas sus componentes con un primo correspondiente
     allocate(lista(fint))               ! Se define el tamaño máximo de la lista
-    DO i=2, n
+    DO i=2, n                           ! Se calculan todos los números primos entre 0 y n
         k=0
         DO j=2, i-1
             IF(MOD(i,j)==0)THEN
-                k=k+1
+                k=1                     ! Variable para saber si es primo o no k=0 -> primo
+                EXIT                    ! si hay al menos un divisor ya sabemos que es primo y no es necesario seguir calculando
             END IF
         END DO
-        IF(k==0)THEN
+        IF(k==0)THEN                    ! Si ningún número lo divide, es un número primo
             l=l+1
             lista(l)=i
         END IF
     END DO
-    print*, lista
+
+    DO i=1, fint                        ! Se calcula la cantidad de primos en el intervalo
+        IF(lista(i)==0)THEN
+            EXIT
+        END IF
+        cant=cant+1
+    END DO
+
+    DO i=ranginf, rangsup
+        DO j=1, cant
+            DO k=j, cant
+                dossum=lista(j)+lista(k)
+                IF (dossum==i)THEN
+                    print*, i,'=',lista(j),'+',lista(k)
+                END IF
+                END DO
+        END DO
+    END DO
+
+!    print*, lista                  ! En caso de querer ver la lista de todos los primos, quitar el comentario
+!    print*, cant                   ! En caso de querer ver la cantidad de primos, quitar el comentario
+
+
 END PROGRAM goldbach
