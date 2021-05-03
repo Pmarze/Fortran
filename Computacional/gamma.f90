@@ -2,7 +2,8 @@
 !    pingpong4.f90
 !    Pablo Martínez (pabloversion1.0@gmail.com)
 
-!    Programa que 
+!    Programa que por el método de Simpson encuentra el valor de la 
+!    función Gamma valuada en z
 
 
 !    Codificación del texto: UTF8
@@ -39,8 +40,8 @@ IMPLICIT NONE
     INTEGER(8) :: i                 ! Índice de la sumatoria
     a=0.0                           ! condicion inicial a=0 b=∞
     b=100000000
-    n=1e8                          ! Para 1e9 se obtiene una muy buena precisión, para n<1e7 el resultado no sirve
-    z=0                           ! valor a calcular en la función gamma
+    n=1e10                          ! Para 1e9 se obtiene una muy buena precisión, para n<1e7 el resultado no sirve
+    z=0.5                           ! valor a calcular en la función gamma
     h=(b-a)/n                       ! Definición método de Simpson
     CALL f(a,z,fa)                  ! Se valúa f(a)
     CALL f(b,z,fb)                  ! se valúa f(b)
