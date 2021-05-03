@@ -39,8 +39,8 @@ IMPLICIT NONE
     INTEGER(8) :: i                 ! Índice de la sumatoria
     a=0.0                           ! condicion inicial a=0 b=∞
     b=100000000
-    n=1e10                          ! Para 1e9 se obtiene una muy buena precisión, para n<1e7 el resultado no sirve
-    z=2.5                           ! valor a calcular en la función gamma
+    n=1e8                          ! Para 1e9 se obtiene una muy buena precisión, para n<1e7 el resultado no sirve
+    z=0                           ! valor a calcular en la función gamma
     h=(b-a)/n                       ! Definición método de Simpson
     CALL f(a,z,fa)                  ! Se valúa f(a)
     CALL f(b,z,fb)                  ! se valúa f(b)
@@ -56,6 +56,9 @@ IMPLICIT NONE
         END IF
     END DO
     S=h*(S0+4*S1+2*S2)/3            ! Resultado de la integral
+    IF (z==0)THEN
+        S=1
+    END IF
     PRINT*, S
 END PROGRAM gamma
 
