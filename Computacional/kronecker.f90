@@ -29,6 +29,7 @@
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see
 !    <http://www.gnu.org/licenses/>.
+
 PROGRAM kronecker
 IMPLICIT NONE
     REAL, DIMENSION(:,:), allocatable :: Mat_A
@@ -37,33 +38,33 @@ IMPLICIT NONE
     INTEGER :: A_1,A_2      ! Matriz A de tamaño A_1xA_2
     INTEGER :: B_1,B_2      ! Matriz B de tamaño B_1xB_2
     INTEGER :: C_1,C_2      ! Matriz C de tamaño C_1xC_2
-    INTEGER :: alfa, beta
-    INTEGER :: i, j, k, l
-    A_1=2
-    A_2=2
-    B_1=2
-    B_2=2
-    C_1=A_1*B_1
-    C_2=A_2*B_2
-    allocate(Mat_A(A_1,A_2))               ! Se define el tamaño de la matriz A
-    allocate(Mat_B(B_1,B_2))               ! Se define el tamaño de la matriz B
-    allocate(Mat_C(C_1,C_2))               ! Se define el tamaño de la matriz C
-    CALL random_number(Mat_A)
-    CALL random_number(Mat_B)
+    INTEGER :: alfa, beta   ! Parámetros de la ecuación dada
+    INTEGER :: i, j, k, l   ! Índices de las sumatorias
+    A_1=260                 ! Tamaño de la matriz A  CUIDADO- para 260 se necesitan 15.52Gb de ram
+    A_2=A_1                 ! Ya que solo consideramos matrices cuadradas
+    B_1=A_1                 ! Se calcula rendimiento para igual tamaño de A y B
+    B_2=B_1                 ! Ya que solo consideramos matrices cuadradas
+    C_1=A_1*B_1             ! Tamaño por definición al realizar el producto de kronecker
+    C_2=A_2*B_2             ! Tamaño por definición al realizar el producto de kronecker
+    allocate(Mat_A(A_1,A_2))                ! Se define el tamaño de la matriz A
+    allocate(Mat_B(B_1,B_2))                ! Se define el tamaño de la matriz B
+    allocate(Mat_C(C_1,C_2))                ! Se define el tamaño de la matriz C
+    CALL random_number(Mat_A)               ! Matriz A de números aleatorios para observar comportamiento
+    CALL random_number(Mat_B)               ! Matriz B de números aleatorios para observar comportamiento
     
-    DO i=1, A_1
+    DO i=1, A_1                             ! Cuatro sumatorias para recorrer todos los índices de la matriz
         DO j=1, A_2
             DO k=1, B_1
                 DO l=1, B_2
-                    alfa=B_1*(i-1)+k
-                    beta=B_2*(j-1)+l
-                    Mat_C(alfa,beta)=Mat_A(i,j)*Mat_B(k,l)
+                    alfa=B_1*(i-1)+k                        ! Se calcula la posición actual de alfa
+                    beta=B_2*(j-1)+l                        ! Se calcula la posición actual de beta
+                    Mat_C(alfa,beta)=Mat_A(i,j)*Mat_B(k,l)  ! Calculo por definición
                 END DO
             END DO
         END DO
     END DO 
-    
-    WRITE(*,*) Mat_A
-    WRITE(*,*) Mat_B
-    WRITE(*,*) Mat_C
+
+!    WRITE(*,*) 'A=', Mat_A                  ! Se imprime la matriz A para corroborar manualmente
+!    WRITE(*,*) 'B=', Mat_B                  ! Se imprime la matriz B para corroborar manualmente
+!    WRITE(*,*) 'C=',Mat_C                   ! Resultado
 END PROGRAM kronecker
