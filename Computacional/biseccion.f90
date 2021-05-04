@@ -52,7 +52,8 @@ IMPLICIT NONE
         IF(fx<=prec .AND. fx>=-1*prec)THEN      ! Si f(h) está muy cercano a cero dentro de la precisión esperada
             error=ABS(b1-a1)/2                  ! Definición del error
             PRINT*, i,'iteraciones'             ! Cantidad de iteraciones necesarias
-            PRINT*, '0 de la función en h=',h,'error=',error
+            PRINT*, '0 de la función en h=',h,
+            PRINT*, 'error=',error
             EXIT                                ! Se termina el proceso, no es necesario iterar más veces
         ELSE IF(fx*fa<0)THEN                    ! Si se cumple esta condición, se cambia el límite superior
             b1=h
