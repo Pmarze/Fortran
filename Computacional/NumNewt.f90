@@ -1,5 +1,5 @@
 !    2021-05-09
-!    NumLagrange.f90
+!    NumNewt.f90
 !    Pablo Martínez (pabloversion1.0@gmail.com)
 
 !    Programa que 
@@ -7,12 +7,12 @@
 !    Codificación del texto: UTF8
 !    Compiladores probados: GNU Fortran (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
 !    Instrucciones de compilación: no requiere nada mas
-!    gfortran -Wall -pedantic -std=f95 -c -o NumLagrange.o NumLagrange.f90
-!    gfortran -o NumLagrange.x NumLagrange.o
-!    ./NumLagrange.x
+!    gfortran -Wall -pedantic -std=f95 -c -o NumNewt.o NumNewt.f90
+!    gfortran -o NumNewt.x NumNewt.o
+!    ./NumNewt.x
 !    Para obervar el análisis de tiempo, memoria y procesador, se sustituye 
 !    la linea anterior por la siguiente
-!    /usr/bin/time -f "%e %M %P" ./NumLagrange.x
+!    /usr/bin/time -f "%e %M %P" ./NumNewt.x
 
 !    Copyright (C) 2021
 !    P. D. Martínez Zeceña
@@ -31,39 +31,31 @@
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see
 !    <http://www.gnu.org/licenses/>.
-PROGRAM NumLagrange
-IMPLICIT NONE
+
+PROGRAM NumNewt
+    IMPLICIT NONE
     INTEGER :: col=3, filas=10001
     REAL :: x=2.5
-    REAL :: P, Lnk
-    REAL, DIMENSION(:,:), allocatable :: Datos, PolL
-    INTEGER :: i, k, n
+    REAL, DIMENSION(:,:), allocatable :: Datos, Difdiv
+    INTEGER :: i, j, k, l, n
     INTEGER :: id,jd
-    REAL :: fx
-    !n=4
-    n=filas-1                                   ! El polinomio de grado k tiene k+1 elementos
     ALLOCATE(Datos(filas,col))                  ! Se crea una matriz de tamaño filas*col
-    ALLOCATE(PolL(filas,1))
+    ALLOCATE(Difdiv(filas-1,filas-1))
     OPEN(13, file="dampOsc_10001",status="old") ! Se lee el archivo a utilizar
         READ(13,*) ((Datos(id,jd),jd=1,col),id=1,filas) ! Se almacena en la matriz
-    CLOSE(13)
-    P=0
-    DO i=1,n
-        Lnk=1
-        DO k=1, n
-            if(k==i)THEN
-                Lnk=1*Lnk
-            ELSE
-                Lnk=((x-Datos(k,1))/(Datos(i,1)-Datos(k,1)))*Lnk
-            END IF
-        END DO
-        P=P+Datos(i,2)*Lnk
+    CLOSE(13)     
+    DO i=1, filas-1
+        Difdiv(i,1)=(Datos(i+1,2)-Datos(i,2))/(Datos(i+1,1)-Datos(i,1))
     END DO
-    Print*, P    
-END PROGRAM NumLagrange
+    l=2
+    DO j=2,filas-2
+        l=l+1 
+        DO k=1, filas-l
+            Difdiv(k,j)=Difdiv(k+1,j-1)-Difdiv(k,j-1)/(Datos(k+l-2,1)-Datos(k,1))
+        END DO
+    END DO
+    DO n=1, 5
+        PRINT*, Difdiv(1,n),Difdiv(2,n),Difdiv(3,n),Difdiv(4,n),Difdiv(5,n)
+    END DO 
 
-SUBROUTINE Func(x,y)
-    REAL, INTENT(IN) :: x
-    REAL, INTENT(OUT) :: y
-    y=SIN(x*3.1415/180)
-END SUBROUTINE
+END PROGRAM NumNewt
