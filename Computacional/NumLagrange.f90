@@ -31,39 +31,43 @@
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see
 !    <http://www.gnu.org/licenses/>.
+
 PROGRAM NumLagrange
 IMPLICIT NONE
-    INTEGER :: col=3, filas=10001
-    REAL :: x=2.5
-    REAL :: P, Lnk
-    REAL, DIMENSION(:,:), allocatable :: Datos, PolL
-    INTEGER :: i, k, n
-    INTEGER :: id,jd
-    REAL :: fx
-    !n=4
-    n=filas-1                                   ! El polinomio de grado k tiene k+1 elementos
-    ALLOCATE(Datos(filas,col))                  ! Se crea una matriz de tamaño filas*col
-    ALLOCATE(PolL(filas,1))
-    OPEN(13, file="dampOsc_10001",status="old") ! Se lee el archivo a utilizar
-        READ(13,*) ((Datos(id,jd),jd=1,col),id=1,filas) ! Se almacena en la matriz
+    REAL(8) :: x                                ! P(x) valor de x a encontrar
+    INTEGER :: col1=3, filas1=6                 ! Número de filas y columnas de los datos
+    INTEGER :: col2=3, filas2=6                 ! Número de filas y columnas de los datos
+    REAL(8) :: P, Lnk, err                      ! Definiciones de Lagrange P(x) y L_n,k
+    REAL(8), DIMENSION(:,:), allocatable :: Datosfit, Datospru
+    INTEGER :: i, j, k, n                       ! Indices de sumatoria
+    INTEGER :: id,jd                            ! Indices para almacenar los datos a la matriz
+    n=filas1-1                                  ! El polinomio de grado k tiene k+1 elementos
+    ALLOCATE(Datosfit(filas1,col1))             ! Se crea una matriz de tamaño filas*col
+    ALLOCATE(Datospru(filas2,col2))             ! Se crea una matriz de tamaño filas*col
+    OPEN(13, file="datospy",status="old")       ! Se lee el archivo a utilizar
+        READ(13,*) ((Datosfit(id,jd),jd=1,col1),id=1,filas1) ! Se almacena los datos en la matriz a hacer el fit
     CLOSE(13)
-    P=0
-    DO i=1,n
-        Lnk=1
-        DO k=1, n
-            if(k==i)THEN
-                Lnk=1*Lnk
-            ELSE
-                Lnk=((x-Datos(k,1))/(Datos(i,1)-Datos(k,1)))*Lnk
-            END IF
+    OPEN(14, file="datosprupy",status="old")    ! Se lee el archivo a utilizar
+        READ(14,*) ((Datospru(id,jd),jd=1,col2),id=1,filas2) ! Se almacena los datos en la matriz
+    CLOSE(14)    
+!    Print*, datosfit(1,1),datosfit(1,2),datosfit(1,3)  ! Corroborar que la lista se almacenó correctamente
+!    Print*, datospru(1,1),datospru(1,2),datospru(1,3)  ! Corroborar que la lista se almacenó correctamente
+    DO j=1, filas1
+        x=Datospru(j,1)                     ! Se calcula para cada x de la lista de prueba
+        P=0                                 ! Valor inicial de P(x)
+        DO i=1,n                            ! Sumatoria por definición del polinomio
+            Lnk=1                           ! Valor inicial de la multiplicatoria
+            DO k=1, n                       ! Multiplicatoria para encontrar el valor de L_n,k
+                if(k==i)THEN                ! Condición de que i!=j para evitar que L sea indeterminado
+                    Lnk=1*Lnk               ! Se multiplica por 1
+                ELSE                        ! Se calcula el valor correspondiente de L_n,k
+                    Lnk=((x-Datosfit(k,1))/(Datosfit(i,1)-Datosfit(k,1)))*Lnk
+                END IF
+            END DO
+            P=P+Datosfit(i,2)*Lnk           ! Se hace la sumatoria de P
         END DO
-        P=P+Datos(i,2)*Lnk
-    END DO
-    Print*, P    
+        PRINT*, 'P=',P                      ! Se muestra el resultado obtenido
+        err=ABS(P-Datospru(j,2))            ! Se muestra el error absoluto para cada dato
+        PRINT*, 'error=',err
+    END DO    
 END PROGRAM NumLagrange
-
-SUBROUTINE Func(x,y)
-    REAL, INTENT(IN) :: x
-    REAL, INTENT(OUT) :: y
-    y=SIN(x*3.1415/180)
-END SUBROUTINE
