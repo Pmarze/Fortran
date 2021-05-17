@@ -34,40 +34,49 @@
 
 PROGRAM NumNewt
     IMPLICIT NONE
-    INTEGER :: col=2, filas=6
-    REAL(8) :: x=-1
-    REAL(8) :: P, x_xj
-    REAL(8), DIMENSION(:,:), allocatable :: Datos, Difdiv, Multi
-    INTEGER :: i, j, k, l, n
-    INTEGER :: id,jd
-    ALLOCATE(Datos(filas,col))                  ! Se crea una matriz de tamaño filas*col
-    ALLOCATE(Difdiv(filas-1,filas-1))
-    ALLOCATE(Multi(filas-1,1))
-    OPEN(13, file="newtpy",status="old")       ! Se lee el archivo a utilizar
-        READ(13,*) ((Datos(id,jd),jd=1,col),id=1,filas) ! Se almacena en la matriz
-    CLOSE(13)     
-    DO i=1, filas-1
+    INTEGER :: col1=2, filas1=6                 ! Número de filas y columnas de los datos a f fitear
+    INTEGER :: col2=2, filas2=6                 ! Número de filas y columnas de los datos a comprobar
+    REAL(8) :: P, x_xj, x, err                  ! Definiciones de Polinomio de Newton P(x)
+    REAL(8), DIMENSION(:,:), allocatable :: Datos, Difdiv, Multi, Datospru
+    INTEGER :: i, j, k, l                       ! Indices de sumatoria
+    INTEGER :: id,jd                            ! Indices para almacenar datos en matriz
+    ALLOCATE(Datos(filas1,col1))                ! Matriz de datos de tamaño filas1*col1
+    ALLOCATE(Difdiv(filas1-1,filas1-1))         ! Matriz para diferencias divididas
+    ALLOCATE(Multi(filas1-1,1))                 ! Matriz para la multiplicación (x-x0)...(x-xj)
+    ALLOCATE(Datospru(filas2,col2))             ! Matriz de datos a corroborar
+    OPEN(13, file="newtpy",status="old")        ! Se lee el archivo a utilizar
+        READ(13,*) ((Datos(id,jd),jd=1,col1),id=1,filas1) ! Se almacena en la matriz
+    CLOSE(13)
+    OPEN(14, file="newtprupy",status="old")     ! Se lee el archivo a utilizar
+        READ(14,*) ((Datospru(id,jd),jd=1,col2),id=1,filas2) ! Se almacena en la matriz
+    CLOSE(14)    
+    DO i=1, filas1-1                            ! Se calculan las diferencias divididas f[xj,xi]
         Difdiv(i,1)=(Datos(i+1,2)-Datos(i,2))/(Datos(i+1,1)-Datos(i,1))
     END DO
-    DO j=2, filas-1
-        DO k=1, filas-j
+    DO j=2, filas1-1                            ! Se calculan las dif. div de orden superior
+        DO k=1, filas1-j
             Difdiv(k,j)=(Difdiv(k+1,j-1)-Difdiv(k,j-1))/(Datos(k+j,1)-Datos(k,1))
         END DO
     END DO
-    DO i=1, filas
-        Multi(i,1)=x-Datos(i,1)
-    END DO
-    P=Datos(1,2)
-    P=P+Difdiv(1,1)*Multi(1,1)
-    DO j=2, filas-1
-        x_xj=1
-        DO k=1, j
-            x_xj=x_xj*Multi(k,1)
+    OPEN(12,file='Resultados_Newt1.txt')        ! Los resultados se almacenan en un archivo
+    DO l=1,filas2
+        x=Datospru(l,1)                         ! Se lee el valor de x_l
+        DO i=1, filas1
+            Multi(i,1)=x-Datos(i,1)             ! Se calcula el producto (x-x0)...(x-xi)
         END DO
-        P=P+Difdiv(1,j)*x_xj
-    END DO
-    PRINT*, P
-    DO n=1, 5
-        PRINT*, Difdiv(1,n),Difdiv(2,n),Difdiv(3,n),Difdiv(4,n),Difdiv(5,n)
-    END DO 
+        P=Datos(1,2)                            ! a0
+        P=P+Difdiv(1,1)*Multi(1,1)              ! a1(x-x0)
+        DO j=2, filas1-1                        ! Se calculan los demás términos de la sumatoria
+            x_xj=1                              ! Valor inicial de la multiplicatoria
+            DO k=1, j
+                x_xj=x_xj*Multi(k,1)
+            END DO
+            P=P+Difdiv(1,j)*x_xj                ! Se calcula el valor de P(x)
+        END DO
+        PRINT*, 'P=',P                          ! Se muestra en pantalla
+        err=ABS(P-Datospru(l,2))                ! Se muestra el error absoluto para cada dato
+        PRINT*, 'error=',err
+        WRITE(12,*) P,err                       ! Se almacena en el archivo el resultado con su error
+    END DO      
+    CLOSE(12)  
 END PROGRAM NumNewt

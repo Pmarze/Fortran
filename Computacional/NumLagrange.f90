@@ -52,6 +52,7 @@ IMPLICIT NONE
     CLOSE(14)    
 !    Print*, datosfit(1,1),datosfit(1,2),datosfit(1,3)  ! Corroborar que la lista se almacenó correctamente
 !    Print*, datospru(1,1),datospru(1,2),datospru(1,3)  ! Corroborar que la lista se almacenó correctamente
+    OPEN(12,file='Resultados_Lagrange.txt') ! Los resultados se almacenan en un archivo
     DO j=1, filas1
         x=Datospru(j,1)                     ! Se calcula para cada x de la lista de prueba
         P=0                                 ! Valor inicial de P(x)
@@ -64,10 +65,11 @@ IMPLICIT NONE
                     Lnk=((x-Datosfit(k,1))/(Datosfit(i,1)-Datosfit(k,1)))*Lnk
                 END IF
             END DO
-            P=P+Datosfit(i,2)*Lnk           ! Se hace la sumatoria de P
+            P=P+Datosfit(i,2)*Lnk           ! Se hace la sumatoria de P(x)
         END DO
         PRINT*, 'P=',P                      ! Se muestra el resultado obtenido
         err=ABS(P-Datospru(j,2))            ! Se muestra el error absoluto para cada dato
         PRINT*, 'error=',err
+        WRITE(12,*) P,err                   ! Se almacena en el archivo el resultado con su error
     END DO    
 END PROGRAM NumLagrange
