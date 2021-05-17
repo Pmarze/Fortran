@@ -2,8 +2,6 @@
 !    NumNewt.f90
 !    Pablo Martínez (pabloversion1.0@gmail.com)
 
-!    Programa que 
-
 !    Codificación del texto: UTF8
 !    Compiladores probados: GNU Fortran (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
 !    Instrucciones de compilación: no requiere nada mas
@@ -32,10 +30,24 @@
 !    along with this program.  If not, see
 !    <http://www.gnu.org/licenses/>.
 
+!    Copyright (C) 2021
+!    Jose tecún
+!    josetecun@gmail.com
+!    La estructura para almacenar los archivos de texto en matrices
+!    ordenadas por filas y columnas:
+!       INTEGER :: id,jd
+!       OPEN(13, file="....",status="old")
+!       READ(13,*) ((Datos(id,jd),jd=1,col1),id=1,filas1)
+!       CLOSE(13)
+!    fue proporcionado por José Tecún y es utilizado bajo su consentimiento
+
 PROGRAM NumNewt
     IMPLICIT NONE
-    INTEGER :: col1=2, filas1=6                 ! Número de filas y columnas de los datos a f fitear
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Columnas y filas
+    INTEGER :: col1=2, filas1=6                 ! Número de filas y columna de los datos a fitear
     INTEGER :: col2=2, filas2=6                 ! Número de filas y columnas de los datos a comprobar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     REAL(8) :: P, x_xj, x, err                  ! Definiciones de Polinomio de Newton P(x)
     REAL(8), DIMENSION(:,:), allocatable :: Datos, Difdiv, Multi, Datospru
     INTEGER :: i, j, k, l                       ! Indices de sumatoria
@@ -44,12 +56,18 @@ PROGRAM NumNewt
     ALLOCATE(Difdiv(filas1-1,filas1-1))         ! Matriz para diferencias divididas
     ALLOCATE(Multi(filas1-1,1))                 ! Matriz para la multiplicación (x-x0)...(x-xj)
     ALLOCATE(Datospru(filas2,col2))             ! Matriz de datos a corroborar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    ! Archivos
     OPEN(13, file="newtpy",status="old")        ! Se lee el archivo a utilizar
         READ(13,*) ((Datos(id,jd),jd=1,col1),id=1,filas1) ! Se almacena en la matriz
     CLOSE(13)
     OPEN(14, file="newtprupy",status="old")     ! Se lee el archivo a utilizar
         READ(14,*) ((Datospru(id,jd),jd=1,col2),id=1,filas2) ! Se almacena en la matriz
     CLOSE(14)    
+!    Print*, Datos(1,1),Datos(1,2),Datos(1,3)   ! Corroborar que la lista se almacenó correctamente
+!    Print*, Datospru(1,1),Datospru(1,2),Datospru(1,3)  ! Corroborar que la lista se almacenó correctamente    
+    OPEN(12,file='Resultados_Newt1.txt')        ! Los resultados se almacenan en un archivo    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     DO i=1, filas1-1                            ! Se calculan las diferencias divididas f[xj,xi]
         Difdiv(i,1)=(Datos(i+1,2)-Datos(i,2))/(Datos(i+1,1)-Datos(i,1))
     END DO
@@ -58,7 +76,6 @@ PROGRAM NumNewt
             Difdiv(k,j)=(Difdiv(k+1,j-1)-Difdiv(k,j-1))/(Datos(k+j,1)-Datos(k,1))
         END DO
     END DO
-    OPEN(12,file='Resultados_Newt1.txt')        ! Los resultados se almacenan en un archivo
     DO l=1,filas2
         x=Datospru(l,1)                         ! Se lee el valor de x_l
         DO i=1, filas1
@@ -73,8 +90,10 @@ PROGRAM NumNewt
             END DO
             P=P+Difdiv(1,j)*x_xj                ! Se calcula el valor de P(x)
         END DO
-        PRINT*, 'P=',P                          ! Se muestra en pantalla
         err=ABS(P-Datospru(l,2))                ! Se muestra el error absoluto para cada dato
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    ! Muestra de datos
+        PRINT*, 'P=',P                          ! Se muestra en pantalla        
         PRINT*, 'error=',err
         WRITE(12,*) P,err                       ! Se almacena en el archivo el resultado con su error
     END DO      

@@ -2,8 +2,6 @@
 !    NumLagrange.f90
 !    Pablo Martínez (pabloversion1.0@gmail.com)
 
-!    Programa que 
-
 !    Codificación del texto: UTF8
 !    Compiladores probados: GNU Fortran (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
 !    Instrucciones de compilación: no requiere nada mas
@@ -32,27 +30,43 @@
 !    along with this program.  If not, see
 !    <http://www.gnu.org/licenses/>.
 
+!    Copyright (C) 2021
+!    Jose tecún
+!    josetecun@gmail.com
+!    La estructura para almacenar los archivos de texto en matrices
+!    ordenadas por filas y columnas:
+!       INTEGER :: id,jd
+!       OPEN(13, file="....",status="old")
+!       READ(13,*) ((Datos(id,jd),jd=1,col1),id=1,filas1)
+!       CLOSE(13)
+!    fue proporcionado por José Tecún y es utilizado bajo su consentimiento
+
 PROGRAM NumLagrange
 IMPLICIT NONE
-    REAL(8) :: x                                ! P(x) valor de x a encontrar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    ! Columnas y filas    
     INTEGER :: col1=3, filas1=6                 ! Número de filas y columnas de los datos
     INTEGER :: col2=3, filas2=6                 ! Número de filas y columnas de los datos
-    REAL(8) :: P, Lnk, err                      ! Definiciones de Lagrange P(x) y L_n,k
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    REAL(8) :: P, Lnk, err, x                   ! Definiciones de Lagrange P(x) y L_n,k
     REAL(8), DIMENSION(:,:), allocatable :: Datosfit, Datospru
     INTEGER :: i, j, k, n                       ! Indices de sumatoria
     INTEGER :: id,jd                            ! Indices para almacenar los datos a la matriz
     n=filas1-1                                  ! El polinomio de grado k tiene k+1 elementos
     ALLOCATE(Datosfit(filas1,col1))             ! Se crea una matriz de tamaño filas*col
     ALLOCATE(Datospru(filas2,col2))             ! Se crea una matriz de tamaño filas*col
-    OPEN(13, file="datospy",status="old")       ! Se lee el archivo a utilizar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+    ! Archivos
+    OPEN(13, file="datospy",status="old")               ! Se lee el archivo a utilizar
         READ(13,*) ((Datosfit(id,jd),jd=1,col1),id=1,filas1) ! Se almacena los datos en la matriz a hacer el fit
     CLOSE(13)
-    OPEN(14, file="datosprupy",status="old")    ! Se lee el archivo a utilizar
+    OPEN(14, file="datosprupy",status="old")            ! Se lee el archivo a utilizar
         READ(14,*) ((Datospru(id,jd),jd=1,col2),id=1,filas2) ! Se almacena los datos en la matriz
     CLOSE(14)    
 !    Print*, datosfit(1,1),datosfit(1,2),datosfit(1,3)  ! Corroborar que la lista se almacenó correctamente
 !    Print*, datospru(1,1),datospru(1,2),datospru(1,3)  ! Corroborar que la lista se almacenó correctamente
     OPEN(12,file='Resultados_Lagrange.txt') ! Los resultados se almacenan en un archivo
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     DO j=1, filas1
         x=Datospru(j,1)                     ! Se calcula para cada x de la lista de prueba
         P=0                                 ! Valor inicial de P(x)
@@ -67,8 +81,10 @@ IMPLICIT NONE
             END DO
             P=P+Datosfit(i,2)*Lnk           ! Se hace la sumatoria de P(x)
         END DO
-        PRINT*, 'P=',P                      ! Se muestra el resultado obtenido
         err=ABS(P-Datospru(j,2))            ! Se muestra el error absoluto para cada dato
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Muestra de datos
+        PRINT*, 'P=',P                      ! Se muestra el resultado obtenido
         PRINT*, 'error=',err
         WRITE(12,*) P,err                   ! Se almacena en el archivo el resultado con su error
     END DO    
