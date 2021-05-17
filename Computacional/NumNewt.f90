@@ -34,28 +34,40 @@
 
 PROGRAM NumNewt
     IMPLICIT NONE
-    INTEGER :: col=3, filas=10001
-    REAL :: x=2.5
-    REAL, DIMENSION(:,:), allocatable :: Datos, Difdiv
+    INTEGER :: col=2, filas=6
+    REAL(8) :: x=-1
+    REAL(8) :: P, x_xj
+    REAL(8), DIMENSION(:,:), allocatable :: Datos, Difdiv, Multi
     INTEGER :: i, j, k, l, n
     INTEGER :: id,jd
     ALLOCATE(Datos(filas,col))                  ! Se crea una matriz de tamaño filas*col
     ALLOCATE(Difdiv(filas-1,filas-1))
-    OPEN(13, file="dampOsc_10001",status="old") ! Se lee el archivo a utilizar
+    ALLOCATE(Multi(filas-1,1))
+    OPEN(13, file="newtpy",status="old")       ! Se lee el archivo a utilizar
         READ(13,*) ((Datos(id,jd),jd=1,col),id=1,filas) ! Se almacena en la matriz
     CLOSE(13)     
     DO i=1, filas-1
         Difdiv(i,1)=(Datos(i+1,2)-Datos(i,2))/(Datos(i+1,1)-Datos(i,1))
     END DO
-    l=2
-    DO j=2,filas-2
-        l=l+1 
-        DO k=1, filas-l
-            Difdiv(k,j)=Difdiv(k+1,j-1)-Difdiv(k,j-1)/(Datos(k+l-2,1)-Datos(k,1))
+    DO j=2, filas-1
+        DO k=1, filas-j
+            Difdiv(k,j)=(Difdiv(k+1,j-1)-Difdiv(k,j-1))/(Datos(k+j,1)-Datos(k,1))
         END DO
     END DO
+    DO i=1, filas
+        Multi(i,1)=x-Datos(i,1)
+    END DO
+    P=Datos(1,2)
+    P=P+Difdiv(1,1)*Multi(1,1)
+    DO j=2, filas-1
+        x_xj=1
+        DO k=1, j
+            x_xj=x_xj*Multi(k,1)
+        END DO
+        P=P+Difdiv(1,j)*x_xj
+    END DO
+    PRINT*, P
     DO n=1, 5
         PRINT*, Difdiv(1,n),Difdiv(2,n),Difdiv(3,n),Difdiv(4,n),Difdiv(5,n)
     END DO 
-
 END PROGRAM NumNewt
