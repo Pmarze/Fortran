@@ -43,7 +43,7 @@ IMPLICIT NONE
     ! Columnas y filas
     INTEGER,PARAMETER :: col_param=4, fil_param=6
     INTEGER :: col_Matri, fil_Matri, Tam_MatG
-    REAL, DIMENSION(:,:), allocatable :: Parametros, Matriz, MatGau
+    REAL, DIMENSION(:,:), allocatable :: Parametros, Matriz, MatGau, XGau
     INTEGER :: i, j, k, l, iprima
     REAL :: delta_x, delta_y, delta_t
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
@@ -114,28 +114,43 @@ IMPLICIT NONE
                 iprima=(j-1)*(col_matri-2)+1+k
                 IF (iprima==i)THEN                                          ! P_{i,j}
                     MatGau(iprima,i)=-2*((1/delta_x**2)+(1/delta_y**2))
-                    !MatGau(iprima,i)=1
                 ELSE IF (iprima==i-1 .and. MOD(i-1,col_matri-2)/=0)THEN     ! P_{i-1,j}
                     MatGau(iprima,i)=1/delta_x**2
-                    !MatGau(iprima,i)=1
                 ELSE IF (iprima==i+1 .and. MOD(i+1-1,col_matri-2)/=0)THEN   ! P_{i+1,j}
                     MatGau(iprima,i)=1/delta_x**2
-                    !MatGau(iprima,i)=1
                 ELSE IF (iprima==i+col_matri-2)THEN                         ! P_{i,j+1}
                     MatGau(iprima,i)=1/delta_y**2
-                    !MatGau(iprima,i)=1
                 ELSE IF (iprima==i-col_matri+2)THEN                         ! P_{i,j-1}
                     MatGau(iprima,i)=1/delta_y**2
-                    !MatGau(iprima,i)=1
                 ELSE 
                     MatGau(iprima,i)=0
                 END IF
             END DO
         END DO
     END DO                    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Vector de Puntos P(i)    
+    ALLOCATE(XGau(1,Tam_MatG))
+    XGau=0
+    XGau(1,1)=Matriz(1,2)+Matriz(2,1)
+    XGau(1,col_matri-2)=Matriz(fil_matri-1,1)+Matriz(col_matri,2)
+    XGau(1,Tam_MatG)=Matriz(col_matri-1,fil_matri)+Matriz(col_matri,fil_matri-1)   
+    XGau(1,Tam_MatG-col_matri+3)=Matriz(1,fil_matri-1)+Matriz(1,2)
     
-
-    PRINT*, INT(MatGau)
+    DO i=3,col_matri-2
+        XGau(1,i-1)=Matriz(i,1)
+    END DO
+    DO i=3,col_matri-2
+        XGau(1,Tam_MatG-col_matri+i+1)=Matriz(2,fil_matri)
+    END DO
+    DO i=3, fil_matri-2
+        XGau(1,(col_matri-2)*(i-2)+1)=Matriz(1,i)
+    END DO
+    PRINT*, Matriz
+    PRINT*, ''
+    !PRINT*, MatGau
+    PRINT*, ''
+    PRINT*, XGau
     !Print*, matriz
 
 END PROGRAM DifPar
