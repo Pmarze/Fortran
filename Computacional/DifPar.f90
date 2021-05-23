@@ -44,6 +44,9 @@ IMPLICIT NONE
     INTEGER,PARAMETER :: col_param=4, fil_param=6
     INTEGER :: col_Matri, fil_Matri, Tam_MatG
     REAL, DIMENSION(:,:), allocatable :: Parametros, Matriz, MatGau, XGau
+    REAL, DIMENSION(:,:), allocatable :: Xanterior, Xposterior, errseidel
+    REAL :: sumseidel, tolerseidel
+    INTEGER :: iteraseidel=20
     INTEGER :: i, j, k, l, iprima
     REAL :: delta_x, delta_y, delta_t
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
@@ -146,11 +149,43 @@ IMPLICIT NONE
     DO i=3, fil_matri-2
         XGau(1,(col_matri-2)*(i-2)+1)=Matriz(1,i)
     END DO
+    DO i=3, fil_matri-2
+        XGau(1,(col_matri-2)*(i-2)+col_matri-2)=Matriz(col_matri,i)
+    END DO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Gauss Seidel
+    ALLOCATE(Xanterior(1,Tam_MatG))
+    ALLOCATE(Xposterior(1,Tam_MatG))
+    Xanterior=0
+    iteraseidel=100000
+    DO k=1,iteraseidel
+        DO i=1, Tam_MatG
+            DO j=1, Tam_MatG
+                IF (i==j)THEN
+                ELSE 
+                sumseidel=sumseidel+MatGau(j,i)*Xanterior(1,j)
+                END IF
+            END DO
+            Xposterior(1,i)=(XGau(1,i)-sumseidel)/MatGau(i,i)
+        END DO    
+        !errseidel=ABS((Xposterior-Xanterior)/Xposterior)
+    END DO
+    !PRINT*, Xposterior
+    
+        DO j=2, fil_matri-1
+            DO k=2, col_matri-1
+                iprima=(j-1)*(col_matri-2)+k-4
+                Matriz(k,j)=Xposterior(1,iprima)
+            END DO
+        END DO
+    
+    
     PRINT*, Matriz
-    PRINT*, ''
+    !PRINT*, ''
     !PRINT*, MatGau
-    PRINT*, ''
-    PRINT*, XGau
+    !PRINT*, ''
+    !PRINT*, XGau
     !Print*, matriz
 
 END PROGRAM DifPar
+
