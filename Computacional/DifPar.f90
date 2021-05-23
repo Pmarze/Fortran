@@ -42,9 +42,9 @@ IMPLICIT NONE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Columnas y filas
     INTEGER,PARAMETER :: col_param=4, fil_param=6
-    INTEGER :: col_Matri, fil_Matri
-    REAL, DIMENSION(:,:), allocatable :: Parametros, Matriz
-    INTEGER :: i, j, k, l
+    INTEGER :: col_Matri, fil_Matri, Tam_MatG
+    REAL, DIMENSION(:,:), allocatable :: Parametros, Matriz, MatGau
+    INTEGER :: i, j, k, l, iprima
     REAL :: delta_x, delta_y, delta_t
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
     ! Arreglos
@@ -72,6 +72,8 @@ IMPLICIT NONE
         delta_t=ABS(Parametros(4,4)-Parametros(3,4))/INT(Parametros(4,2))        
     END IF    
     ALLOCATE(Matriz(col_matri,fil_matri))      
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Condiciones de frontera de la matriz
     DO i=1, col_matri
         Matriz(1,i)=Parametros(1,5)             ! Lado izquierdo 
         Matriz(col_matri,i)=Parametros(2,5)     ! Lado derecho
@@ -102,13 +104,38 @@ IMPLICIT NONE
     ELSE IF (Matriz(col_matri,fil_matri-1)<Matriz(col_matri-1,fil_matri))THEN
         Matriz(col_matri,fil_matri)=Matriz(col_matri,fil_matri-1)+(Matriz(col_matri-1,fil_matri)-(Matriz(col_matri,fil_matri-1))/2)
     END IF    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Matriz para diagonalizar
+    Tam_MatG=(col_matri-2)*(fil_matri-2) ! una matriz dentro de otra tiene m-2 n-2
+    ALLOCATE(MatGau(Tam_MatG,Tam_MatG))        
+    DO i=1,Tam_MatG
+        DO j=1, fil_matri-2
+            DO k=0, col_matri-2-1
+                iprima=(j-1)*(col_matri-2)+1+k
+                IF (iprima==i)THEN                                          ! P_{i,j}
+                    MatGau(iprima,i)=-2*((1/delta_x**2)+(1/delta_y**2))
+                    !MatGau(iprima,i)=1
+                ELSE IF (iprima==i-1 .and. MOD(i-1,col_matri-2)/=0)THEN     ! P_{i-1,j}
+                    MatGau(iprima,i)=1/delta_x**2
+                    !MatGau(iprima,i)=1
+                ELSE IF (iprima==i+1 .and. MOD(i+1-1,col_matri-2)/=0)THEN   ! P_{i+1,j}
+                    MatGau(iprima,i)=1/delta_x**2
+                    !MatGau(iprima,i)=1
+                ELSE IF (iprima==i+col_matri-2)THEN                         ! P_{i,j+1}
+                    MatGau(iprima,i)=1/delta_y**2
+                    !MatGau(iprima,i)=1
+                ELSE IF (iprima==i-col_matri+2)THEN                         ! P_{i,j-1}
+                    MatGau(iprima,i)=1/delta_y**2
+                    !MatGau(iprima,i)=1
+                ELSE 
+                    MatGau(iprima,i)=0
+                END IF
+            END DO
+        END DO
+    END DO                    
+    
 
-
-
-    Print*, matriz
+    PRINT*, INT(MatGau)
+    !Print*, matriz
 
 END PROGRAM DifPar
-
-SUBROUTINE Frontera(A,n,m,B)
-    REAL,DIMENSION(n,m)
-END SUBROUTINE Frontera
