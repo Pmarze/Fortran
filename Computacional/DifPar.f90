@@ -77,13 +77,29 @@ IMPLICIT NONE
     ALLOCATE(Matriz(col_matri,fil_matri))      
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Condiciones de frontera de la matriz
-    DO i=1, col_matri
-        Matriz(1,i)=Parametros(1,5)             ! Lado izquierdo 
-        Matriz(col_matri,i)=Parametros(2,5)     ! Lado derecho
-        Matriz(i,1)=Parametros(4,5)             ! Lado superior
-        Matriz(i,col_matri)=Parametros(3,5)     ! Lado inferior        
-    END DO
-    
+    If (Parametros(1,1)==1)THEN
+        DO i=1, col_matri
+            Matriz(1,i)=Parametros(1,5)             ! Lado izquierdo 
+            Matriz(col_matri,i)=Parametros(2,5)     ! Lado derecho
+            Matriz(i,1)=Parametros(4,5)             ! Lado superior
+            Matriz(i,col_matri)=Parametros(3,5)     ! Lado inferior        
+        END DO
+    ELSE IF(Parametros(1,1)==2)THEN
+        DO i=1, col_matri
+            Matriz(1,i)=Parametros(1,5)             ! Lado izquierdo 
+            Matriz(col_matri,i)=Parametros(2,5)     ! Lado derecho
+            Matriz(i,1)=Parametros(4,6)             ! Lado superior
+            Matriz(i,col_matri)=Parametros(3,6)     ! Lado inferior        
+        END DO        
+    ELSE IF(Parametros(1,1)==3)THEN
+        DO i=1, col_matri
+            Matriz(1,i)=Parametros(1,5)             ! Lado izquierdo 
+            Matriz(col_matri,i)=Parametros(2,5)     ! Lado derecho
+            Matriz(i,1)=Parametros(4,6)             ! Lado superior
+            Matriz(i,col_matri)=Parametros(3,6)     ! Lado inferior        
+        END DO        
+    END IF    
+    ! Se Calcula el valor de las esquinas de la matriz
     IF (Matriz(1,2)>Matriz(2,1))THEN
         Matriz(1,1)=Matriz(2,1)+((Matriz(1,2)-Matriz(2,1))/2)
     ELSE IF (Matriz(1,2)<Matriz(2,1))THEN
@@ -107,6 +123,7 @@ IMPLICIT NONE
     ELSE IF (Matriz(col_matri,fil_matri-1)<Matriz(col_matri-1,fil_matri))THEN
         Matriz(col_matri,fil_matri)=Matriz(col_matri,fil_matri-1)+(Matriz(col_matri-1,fil_matri)-(Matriz(col_matri,fil_matri-1))/2)
     END IF    
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Matriz para diagonalizar
     Tam_MatG=(col_matri-2)*(fil_matri-2) ! una matriz dentro de otra tiene m-2 n-2
