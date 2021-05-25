@@ -141,11 +141,16 @@ IMPLICIT NONE
     ELSE IF (Matriz(col_matri,fil_matri-1)<Matriz(col_matri-1,fil_matri))THEN
         Matriz(col_matri,fil_matri)=Matriz(col_matri,fil_matri-1)+(Matriz(col_matri-1,fil_matri)-(Matriz(col_matri,fil_matri-1))/2)
     END IF    
-
+    ! Se exportan los resultados con el valor de cada punto
+    OPEN(15, file='Gauss_Frontera.txt')
+        DO i=1, fil_matri
+            WRITE(15, '(1000F14.7)')( real(Matriz(i,j)) ,j=1,col_matri)
+        END DO
+    CLOSE(15)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Matriz para diagonalizar
     Tam_MatG=(col_matri-2)*(fil_matri-2) ! una matriz dentro de otra tiene m-2 n-2
-    ALLOCATE(MatGau(Tam_MatG,Tam_MatG))        
+    ALLOCATE(MatGau(Tam_MatG,Tam_MatG))
     DO i=1,Tam_MatG
         DO j=1, fil_matri-2
             DO k=0, col_matri-2-1
@@ -258,4 +263,5 @@ IMPLICIT NONE
             WRITE(14, '(1000F14.7)')( real(Matriz(i,j)) ,j=1,col_matri)
         END DO
     CLOSE(14)
+
 END PROGRAM DifPar
